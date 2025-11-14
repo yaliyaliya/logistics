@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>可信物流问答</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:40px;background:#f7f7f7}
+    h1{color:#c00}
+    textarea{width:100%;font-size:18px;padding:10px}
+    button{font-size:20px;padding:10px 20px;margin-top:10px}
+    #answer{margin-top:20px;background:#fff;padding:15px;border:1px solid #ddd;white-space:pre-line}
+  </style>
+</head>
+<body>
+  <h1>银发可信物流问答系统</h1>
+  <textarea id="question" rows="3" placeholder="请输入物流问题，例如：5公斤衣服北京到乌鲁木齐哪家最快？"></textarea><br>
+  <button onclick="ask()">查询</button>
+  <div id="answer"></div>
+
+  <script>
+    const CSV_URL = 'https://raw.githubusercontent.com/yaliyaliya/logistics/main/wulian.csv';
+    let csvData = '';
+    fetch(CSV_URL).then(r=>r.text()).then(t=>csvData=t);
+
+    function ask(){
+      const q = document.getElementById('question').value.trim();
+      if(!q){alert('请先输入问题');return;}
+      const lines = csvData.trim().split('\n');
+      let found = [];
+      for(let i=1;i<lines.length;i++){
+        const [公司,出发,到达,服务,时效,价格,来源,更新] = lines[i].split(',');
+        if(q.includes(出发) && q.includes(到达)){
+          found.push(`1 答案：${公司} ${服务} ${时效}天 ${价格}元/kg
+2 数据来源：${来源}
+3 更新时间：${更新}
+----------------------------------`);
+        }
+      }
+      document.getElementById('answer').textContent =
+        found.length ? found.join('\n') : '4 库里暂时没记，请系统更新补一行';
+    }
+  </script>
+</body>
+</html>
